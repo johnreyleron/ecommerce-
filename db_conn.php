@@ -1,107 +1,19 @@
-<html>
-<?php include_once "db_conn.php"; ?>
-<head>
-    <meta charset="UTF-8">
-    <title>Document</title>
- <link rel="stylesheet" href="css/bootstrap.css">
-
-</head>
-<body>
-    <div class="container">
-        <div class="row">
-            
-            <div class="col-9">
-               <h3>PRODUCT LIST</h3>
-                <?php
-            
-                  $productlist = query($conn, "select item_id, item_name, item_price from products where item_status='A'");
-                 // var_dump($userlist);
-                  echo "<hr>";
-                       if(isset($_GET['update_status'])){
-                            switch($_GET['update_status']){
-                                case "success": echo "<div class='alert alert-success'>User Updated.</div>";
-                                      break;
-                                case "failed":  echo "<div class='alert alert-danger'>User Failed to be updated.</div>";
-                                      break;
-                                        
-                            }
-                       }
-                  echo "<hr>";
-                  
-                  
-                    echo "<table class='table table-bordered'>";
-                    echo "<thead>";
-                         echo "<th>Item Name</th>";
-                         echo "<th>Item Price</th>";
-                         echo "<th>Action</th>";
-                    echo "</thead>";
-                  foreach($productlist as $key => $row){
-                      echo "<tr>";
-                         echo "<td>" . $row['item_name'] . "</td>";
-                         echo "<td>" . $row['item_price'] . "</td>";
-                         echo "<td> <a class='btn btn-success' href='submit.php?&item_name=" .$row['item_name'] . "&item_price=" . $row['item_price']. "&item_id=". $row['item_id'] ."' > Update </a> </td>";
-                         echo "<td> <a class='btn btn-danger' href='delete_item.php?item_id=". $row['item_id'] ." ' > Delete </a> </td>";
-                    echo "</tr>";
-                  }
-                   echo "</table>";
-                
-                ?>
-                
-            </div>
-            
-        </div>
-    </div>
-</body>
-<script src="js/bootstrap.js"></script>
-</html>
-
 <?php
 include_once "db_conn.php";
 
-if(isset($_POST['new_item_name'])){
-    $p_item_name=$_POST['new_item_name'];
-    $p_item_price=$_POST['new_item_price'];
-    
-    $table = "products";
-    $fields = array('item_name' => $p_item_name
-                   , 'item_price' => $p_item_price
-                   );
-    
-    if(insert($conn, $table, $fields) ){
-        header("location: index.php?new_record=added");
-        exit();
-    }  
-    else{
-        header("location: index.php?new_record=failed");
-        exit();
-    }
+
+if (!$conn) {
+  die("Connection failed: " . mysqli_connect_error());
 }
 
-<?php
-include_once "db_conn.php";
+$item_id = $_GET['item_id'];
+$sql = "DELETE FROM products WHERE item_id = $item_id";
 
+if (mysqli_query($conn, $sql)) {
+    header("location: index.php?record deleted successfully");
+} else {
+    header("location: index.php?error deleting record");
+}
 
-if(isset($_POST['p_item_id'])){
-    $table = "products";
-    
-    $p_item_id  = $_POST['p_item_id'];
-    $p_item_name = $_POST['p_item_name'];
-    $p_item_price = $_POST['p_item_price'];
-    
-    
-    $fields = array( 'item_name' => $p_item_name
-                   , 'item_price' => $p_item_price
-                   );
-    $filter = array( 'item_id' => $p_item_id );
-    
-   
-   if( update($conn, $table, $fields, $filter )){
-       header("location: index.php?update_status=success");
-       exit();
-   }
-    else{
-        header("location: index.php?update_status=failed");
-        exit();
-    }
- }
+mysqli_close($conn);
 ?>
